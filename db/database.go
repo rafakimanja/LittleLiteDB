@@ -50,12 +50,16 @@ func (d* Database) validPath() bool {
 	return true
 }
 
-func refactorNameDB(name string) string {
-	nameDB := strings.ToLower(name)
-	return strings.TrimSpace(nameDB)
+func (d* Database) GetPath() string {
+	return d.path
+}
+
+func refactorName(name string) string {
+	name_lower := strings.ToLower(name)
+	return strings.TrimSpace(name_lower)
 }
 
 func buildPath(name string) string {
-	dbName := refactorNameDB(name)
-	return "./littlelight/"+dbName
+	dbName := refactorName(name)
+	return "./LLDB/"+dbName
 }
