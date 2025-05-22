@@ -21,7 +21,7 @@ func ConectDB(name string) *Database {
 	return &conector
 }
 
-func (d* Database) searchDB(){
+func (d *Database) searchDB() {
 	if !d.validPath() {
 		if d.buildDB() {
 			logger.Info("database make's succeful!")
@@ -29,9 +29,7 @@ func (d* Database) searchDB(){
 			logger.Error("erro in build database")
 			os.Exit(1)
 		}
-	} else {
-		logger.Info("database it's exist")
-	}	
+	}
 }
 
 func (d *Database) buildDB() bool {
@@ -42,15 +40,15 @@ func (d *Database) buildDB() bool {
 	return err == nil
 }
 
-func (d* Database) validPath() bool {
+func (d *Database) validPath() bool {
 	_, err := os.Stat(d.path)
-    if os.IsNotExist(err) {
-        return false
-    }
+	if os.IsNotExist(err) {
+		return false
+	}
 	return true
 }
 
-func (d* Database) GetPath() string {
+func (d *Database) GetPath() string {
 	return d.path
 }
 
@@ -61,5 +59,5 @@ func refactorName(name string) string {
 
 func buildPath(name string) string {
 	dbName := refactorName(name)
-	return "./LLDB/"+dbName
+	return "./LLDB/" + dbName
 }

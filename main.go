@@ -1,17 +1,17 @@
 package main
 
-import (
-	"littlelight/db"
-	"littlelight/table"
-)
+import "littlelight/orm"
 
 type Funcionario struct {
-	nome  string
-	cargo string
+	Nome  string `json:"nome"`
+	Cargo string `json:"cargo"`
 }
 
 func main() {
-	newFunc := Funcionario{nome: "Rafael", cargo: "Desenvolvedor"}
-	mydb := db.ConectDB("Empresa")
-	table.New(mydb, newFunc)
+	newFunc := Funcionario{Nome: "Pedro Henrique", Cargo: "Detran"}
+
+	lorm := orm.New()
+
+	lorm.ConectDB("Empresa")
+	lorm.Migrate(newFunc)
 }

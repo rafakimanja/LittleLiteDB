@@ -9,18 +9,19 @@ import (
 )
 
 type Model struct {
-	ID         string
-	content    any
-	Created_At time.Time
-	Updated_At time.Time
-	Deleted_At time.Time
+	ID         string     `json:"id"`
+	Content    any        `json:"content"`
+	Created_At time.Time  `json:"created_at"`
+	Updated_At time.Time  `json:"updated_at"`
+	Deleted_At *time.Time `json:"deleted_at"`
 }
 
 func Init(content any) (*Model, error) {
 	model := Model{
-		ID: uuid.New().String(),
+		ID:         uuid.New().String(),
 		Created_At: time.Now(),
 		Updated_At: time.Now(),
+		Deleted_At: nil,
 	}
 	err := model.SetContent(content)
 	if err != nil {
@@ -31,7 +32,7 @@ func Init(content any) (*Model, error) {
 }
 
 func (m *Model) GetContent() any {
-	return m.content
+	return m.Content
 }
 
 func (m *Model) SetContent(content any) error {
@@ -43,6 +44,6 @@ func (m *Model) SetContent(content any) error {
 	if t.Kind() != reflect.Struct {
 		return errors.New("content isn't valid struct")
 	}
-	m.content = content
+	m.Content = content
 	return nil
 }

@@ -23,52 +23,58 @@ type TableConfig struct {
 func New(db *db.Database, table any) *Table {
 	types := reflect.TypeOf(table)
 	newTable := Table{
-		path:    buildPath(db.GetPath(), types.Name()),
-		db_path: db.GetPath(),
+		path:       buildPath(db.GetPath(), types.Name()),
+		db_path:    db.GetPath(),
 		name_table: types.Name(),
 	}
-	newTable.buildTable()
-	newTable.create(table)
+	if !newTable.searchTable() {
+		newTable.buildTable()
+		newTable.create(table)
+	}
 	return &newTable
 }
 
+// procura e valida a tabela em questao, caso nao exista, cria uma nova
+func (t *Table) searchTable() bool {
+	//valida se tem um diretorio
+	if validPath(t.path){
+		//busca por arquivos
+		entries, err := os.ReadDir(t.path)
+		if err != nil {
+			fmt.Println(err.Error())
+		} else {
+			for _, entry := range entries {
+				//ve se e um arquivo, e se tem .json no nome
+				if !entry.IsDir() && strings.HasSuffix(entry.Name(), ".json"){
+					return true
+				}
+			}
+		}
+	}
+	return false
+}
+
 // criar o arquivo da tabela e da config da tabela em json
-func (t *Table) create(table any) {
-	if !t.validDB() {
+func (t *Table) create(table any) bool {
+	if !validPath(t.db_path) {
 		fmt.Println("Database don't exist!")
-		return
+		return false
 	}
 
-	if !t.validPath() {
+	if !validPath(t.path) {
 		fmt.Println("Table don't exists")
-		return
+		return false
 	}
 
 	tableModel, err := Init(table)
 	if err != nil {
 		fmt.Println(err.Error())
-		return
+		return false
 	}
 
-	t.createFile(t.name_table+".json")
+	t.createFile(t.name_table + ".json")
 	configs := t.extractConfig(tableModel.GetContent())
 	t.createConfigFile(configs, t.name_table+".config.json")
-	fmt.Println("Table created succefull!")
-}
-
-func (t *Table) validPath() bool {
-	_, err := os.Stat(t.path)
-	if os.IsNotExist(err) {
-		return false
-	}
-	return true
-}
-
-func (t *Table) validDB() bool {
-	_, err := os.Stat(t.db_path)
-	if os.IsNotExist(err) {
-		return false
-	}
 	return true
 }
 
@@ -81,7 +87,12 @@ func (t *Table) buildTable() bool {
 }
 
 func (t *Table) extractConfig(fields any) []TableConfig {
-	var configs []TableConfig
+	var configs []TableConfig = []TableConfig{
+		{Field: "id", Types: "string"},
+		{Field: "created_at", Types: "Time"},
+		{Field: "updated_at", Types: "Time"},
+		{Field: "deleted_at", Types: "Time"},
+	}
 	typesFields := reflect.TypeOf(fields)
 
 	if typesFields.Kind() == reflect.Ptr {
@@ -95,6 +106,14 @@ func (t *Table) extractConfig(fields any) []TableConfig {
 	return configs
 }
 
+func (t *Table) GetPath() string {
+	return t.path
+}
+
+func (t *Table) GetNameTable() string {
+	return t.name_table
+}
+
 func refactorName(name string) string {
 	name_lower := strings.ToLower(name)
 	return strings.TrimSpace(name_lower)
@@ -103,4 +122,9 @@ func refactorName(name string) string {
 func buildPath(db_path string, name string) string {
 	tableName := refactorName(name)
 	return db_path + "/" + tableName
+}
+
+func validPath(path string) bool {
+	_, err := os.Stat(path)
+	return !os.IsNotExist(err)
 }
