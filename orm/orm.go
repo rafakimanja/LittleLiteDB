@@ -6,45 +6,50 @@ import (
 	"littlelight/table"
 )
 
-
-type Lorm struct {
-	db_ref     ModelDB
-	tables_ref ModelTable
+type ORM struct {
+	dbRef    ModelDB
+	tableRef ModelTable
 }
 
-func New() *Lorm {
-	return &Lorm{}
+func New() *ORM {
+	return &ORM{}
 }
 
-func (l *Lorm) ConectDB(dbname string) {
-	db := db.ConectDB(dbname)
-	l.db_ref.db = db
-	l.db_ref.db_path = db.GetPath()
+func (orm *ORM) ConnectDB(dbname string) {
+	database := db.Connect(dbname)
+	orm.dbRef.db = database
+	orm.dbRef.dbPath = database.GetPath()
 }
 
-func (l *Lorm) Migrate(tableAny any) {
-	tb := table.New(l.db_ref.db, tableAny)
-	l.tables_ref.table = tb
-	l.tables_ref.table_path = tb.GetPath()
-
-	if l.Insert(tableAny){
-		fmt.Println("Insert data succefull")
-	} else {
-		fmt.Println("Error insert data in table")
-	}
-}
-
-func (l *Lorm) Insert(content any) bool {
-	pathFile := l.tables_ref.table_path + "/" + l.tables_ref.table.GetNameTable() + ".json"
-	dataTable, err := l.convertData(content)
+func (orm *ORM) Migrate(tableAny any) {
+	tb, err := table.New(orm.dbRef.db, tableAny)
 	if err != nil {
-		return false
+		fmt.Println(err.Error())
+		return
 	}
-	fmt.Println(dataTable)
-	err = l.insertTable(pathFile, *dataTable)
-	return err == nil
+	orm.tableRef.table = tb
+	orm.tableRef.tablePath = tb.GetPath()
 }
 
-func (l *Lorm) convertData(data any) (*table.Model, error) {
+func (orm *ORM) Insert(model any) error {
+	if orm.tableRef.table == nil {
+		return fmt.Errorf("table is not initializede")
+	}
+
+	pathFile := orm.tableRef.tablePath + "/" + orm.tableRef.table.GetNameTable() + ".json"
+	
+	dataTable, err := orm.convertData(model)
+	if err != nil {
+		return err
+	}
+
+	err = orm.insertTable(pathFile, *dataTable)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (orm *ORM) convertData(data any) (*table.Model, error) {
 	return table.Init(data)
 }

@@ -6,7 +6,7 @@ import (
 	"os"
 )
 
-func (l *Lorm) insertTable(filename string, newItem table.Model) error {
+func (orm *ORM) insertTable(filename string, newItem table.Model) error {
 	var mdatas []table.Model
 	
 	data, err := os.ReadFile(filename)

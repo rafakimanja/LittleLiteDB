@@ -14,7 +14,7 @@ type Database struct {
 	path string
 }
 
-func ConectDB(name string) *Database {
+func Connect(name string) *Database {
 	logger = slog.Default()
 	conector := Database{path: buildPath(name)}
 	conector.searchDB()

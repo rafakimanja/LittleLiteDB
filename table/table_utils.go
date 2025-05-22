@@ -3,10 +3,12 @@ package table
 import (
 	"encoding/json"
 	"os"
+	"path/filepath"
 )
 
 func (t *Table) createFile(name string) error {
-	file, err := os.Create(t.path + "/" + name)
+	fullPath := filepath.Join(t.path, name)
+	file, err := os.Create(fullPath+".json")
 	if err != nil {
 		return err
 	}
@@ -18,7 +20,8 @@ func (t *Table) createFile(name string) error {
 }
 
 func (t *Table) createConfigFile(dados []TableConfig, name string) error {
-	file, err := os.Create(t.path + "/" + name)
+	fullPath := filepath.Join(t.path, name)
+	file, err := os.Create(fullPath+".config.json")
 	if err != nil {
 		return err
 	}

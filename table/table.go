@@ -4,14 +4,15 @@ import (
 	"fmt"
 	"littlelight/db"
 	"os"
+	"path/filepath"
 	"reflect"
 	"strings"
 )
 
 type Table struct {
-	path       string
-	db_path    string
-	name_table string
+	path      string
+	dbPath    string
+	nameTable string
 }
 
 type TableConfig struct {
@@ -20,24 +21,32 @@ type TableConfig struct {
 }
 
 // criar o Obj Table (criar o path, a pasta e o objeto)
-func New(db *db.Database, table any) *Table {
+func New(db *db.Database, table any) (*Table, error) {
 	types := reflect.TypeOf(table)
-	newTable := Table{
+	tbl := &Table{
 		path:       buildPath(db.GetPath(), types.Name()),
-		db_path:    db.GetPath(),
-		name_table: types.Name(),
+		dbPath:    db.GetPath(),
+		nameTable: types.Name(),
 	}
-	if !newTable.searchTable() {
-		newTable.buildTable()
-		newTable.create(table)
+	if !tbl.searchTable() {
+		
+		err := tbl.buildTable()
+		if err != nil {
+			return nil, err
+		}
+
+		err = tbl.create(table)
+		if err != nil {
+			return nil, err
+		}
 	}
-	return &newTable
+	return tbl, nil
 }
 
 // procura e valida a tabela em questao, caso nao exista, cria uma nova
 func (t *Table) searchTable() bool {
 	//valida se tem um diretorio
-	if validPath(t.path){
+	if validPath(t.path) {
 		//busca por arquivos
 		entries, err := os.ReadDir(t.path)
 		if err != nil {
@@ -45,7 +54,7 @@ func (t *Table) searchTable() bool {
 		} else {
 			for _, entry := range entries {
 				//ve se e um arquivo, e se tem .json no nome
-				if !entry.IsDir() && strings.HasSuffix(entry.Name(), ".json"){
+				if !entry.IsDir() && strings.HasSuffix(entry.Name(), ".json") {
 					return true
 				}
 			}
@@ -55,54 +64,56 @@ func (t *Table) searchTable() bool {
 }
 
 // criar o arquivo da tabela e da config da tabela em json
-func (t *Table) create(table any) bool {
-	if !validPath(t.db_path) {
-		fmt.Println("Database don't exist!")
-		return false
+func (t *Table) create(table any) error {
+	if !validPath(t.dbPath) {
+		return fmt.Errorf("database path does not exist")
 	}
 
 	if !validPath(t.path) {
-		fmt.Println("Table don't exists")
-		return false
+		return fmt.Errorf("table path does not exist")
 	}
 
 	tableModel, err := Init(table)
 	if err != nil {
-		fmt.Println(err.Error())
-		return false
+		return err
 	}
 
-	t.createFile(t.name_table + ".json")
+	err = t.createFile(t.nameTable)
+	if err != nil {
+		return err
+	}
+
 	configs := t.extractConfig(tableModel.GetContent())
-	t.createConfigFile(configs, t.name_table+".config.json")
-	return true
+	err = t.createConfigFile(configs, t.nameTable)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
-func (t *Table) buildTable() bool {
-	err := os.MkdirAll(t.path, 0755)
-	if err != nil {
-		fmt.Println(err.Error())
-	}
-	return err == nil
+func (t *Table) buildTable() error {
+	return os.MkdirAll(t.path, 0755)
 }
 
 func (t *Table) extractConfig(fields any) []TableConfig {
-	var configs []TableConfig = []TableConfig{
+	configs := []TableConfig{
 		{Field: "id", Types: "string"},
 		{Field: "created_at", Types: "Time"},
 		{Field: "updated_at", Types: "Time"},
 		{Field: "deleted_at", Types: "Time"},
 	}
-	typesFields := reflect.TypeOf(fields)
-
-	if typesFields.Kind() == reflect.Ptr {
-		typesFields = typesFields.Elem()
+	
+	typ := reflect.TypeOf(fields)
+	if typ.Kind() == reflect.Ptr {
+		typ = typ.Elem()
 	}
 
-	for i := 0; i < typesFields.NumField(); i++ {
-		field := typesFields.Field(i)
+	for i := 0; i < typ.NumField(); i++ {
+		field := typ.Field(i)
 		configs = append(configs, TableConfig{Field: field.Name, Types: field.Type.Name()})
 	}
+
 	return configs
 }
 
@@ -111,17 +122,16 @@ func (t *Table) GetPath() string {
 }
 
 func (t *Table) GetNameTable() string {
-	return t.name_table
+	return t.nameTable
 }
 
 func refactorName(name string) string {
-	name_lower := strings.ToLower(name)
-	return strings.TrimSpace(name_lower)
+	return strings.TrimSpace(strings.ToLower(name))
 }
 
 func buildPath(db_path string, name string) string {
 	tableName := refactorName(name)
-	return db_path + "/" + tableName
+	return filepath.Join(db_path, tableName)
 }
 
 func validPath(path string) bool {
