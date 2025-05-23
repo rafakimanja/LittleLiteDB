@@ -12,11 +12,12 @@ var (
 
 type Database struct {
 	path string
+	name string
 }
 
 func Connect(name string) *Database {
 	logger = slog.Default()
-	conector := Database{path: buildPath(name)}
+	conector := Database{path: buildPath(name), name: strings.ToLower(name)}
 	conector.searchDB()
 	return &conector
 }
@@ -50,6 +51,10 @@ func (d *Database) validPath() bool {
 
 func (d *Database) GetPath() string {
 	return d.path
+}
+
+func (d *Database) GetName() string {
+	return d.name
 }
 
 func refactorName(name string) string {

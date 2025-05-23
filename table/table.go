@@ -43,7 +43,7 @@ func New(db *db.Database, table any) (*Table, error) {
 	return tbl, nil
 }
 
-// procura e valida a tabela em questao, caso nao exista, cria uma nova
+// procura e valida a tabela em questao
 func (t *Table) searchTable() bool {
 	//valida se tem um diretorio
 	if validPath(t.path) {
@@ -73,22 +73,24 @@ func (t *Table) create(table any) error {
 		return fmt.Errorf("table path does not exist")
 	}
 
-	tableModel, err := Init(table)
+	err := t.createFile(t.nameTable)
 	if err != nil {
 		return err
 	}
 
-	err = t.createFile(t.nameTable)
-	if err != nil {
-		return err
-	}
+	if strings.ToLower(t.nameTable) != "ormmeta" {
+		tableModel, err := Init(table)
+		if err != nil {
+			return err
+		}
 
-	configs := t.extractConfig(tableModel.GetContent())
-	err = t.createConfigFile(configs, t.nameTable)
-	if err != nil {
-		return err
+		configs := t.extractConfig(tableModel.GetContent())
+		err = t.createConfigFile(configs, t.nameTable)
+		if err != nil {
+			return err
+		}
 	}
-
+	
 	return nil
 }
 
