@@ -3,8 +3,9 @@ package table
 import (
 	"fmt"
 	"littlelight/db"
+	"littlelight/services"
+	"littlelight/types"
 	"os"
-	"path/filepath"
 	"reflect"
 	"strings"
 )
@@ -24,7 +25,7 @@ type TableConfig struct {
 func New(db *db.Database, table any) (*Table, error) {
 	types := reflect.TypeOf(table)
 	tbl := &Table{
-		path:       buildPath(db.GetPath(), types.Name()),
+		path:       services.FSbuildPath(db.GetPath(), types.Name()),
 		dbPath:    db.GetPath(),
 		nameTable: types.Name(),
 	}
@@ -46,7 +47,7 @@ func New(db *db.Database, table any) (*Table, error) {
 // procura e valida a tabela em questao
 func (t *Table) searchTable() bool {
 	//valida se tem um diretorio
-	if validPath(t.path) {
+	if services.FSvalidPath(t.path) {
 		//busca por arquivos
 		entries, err := os.ReadDir(t.path)
 		if err != nil {
@@ -65,11 +66,11 @@ func (t *Table) searchTable() bool {
 
 // criar o arquivo da tabela e da config da tabela em json
 func (t *Table) create(table any) error {
-	if !validPath(t.dbPath) {
+	if !services.FSvalidPath(t.dbPath) {
 		return fmt.Errorf("database path does not exist")
 	}
 
-	if !validPath(t.path) {
+	if !services.FSvalidPath(t.path) {
 		return fmt.Errorf("table path does not exist")
 	}
 
@@ -79,7 +80,7 @@ func (t *Table) create(table any) error {
 	}
 
 	if strings.ToLower(t.nameTable) != "ormmeta" {
-		tableModel, err := Init(table)
+		tableModel, err := types.Init(table)
 		if err != nil {
 			return err
 		}
@@ -125,18 +126,4 @@ func (t *Table) GetPath() string {
 
 func (t *Table) GetNameTable() string {
 	return t.nameTable
-}
-
-func refactorName(name string) string {
-	return strings.TrimSpace(strings.ToLower(name))
-}
-
-func buildPath(db_path string, name string) string {
-	tableName := refactorName(name)
-	return filepath.Join(db_path, tableName)
-}
-
-func validPath(path string) bool {
-	_, err := os.Stat(path)
-	return !os.IsNotExist(err)
 }

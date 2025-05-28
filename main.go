@@ -11,14 +11,10 @@ type Carro struct {
 }
 
 func main() {
-
-	myCar := Carro{Nome: "mustang", Modelo: "2025 5.0 v8"}
-
-	lorm := orm.New()
-	lorm.ConnectDB("Concessecionaria")
-	lorm.Migrate(myCar)
-	err := lorm.Insert(myCar)
+	myCar, err := orm.SelectByID[Carro]("12f5c589-06d6-4052-aacb-43fdd17a153d", "revenda")
 	if err != nil {
 		fmt.Println(err.Error())
+	} else {
+		fmt.Printf("%v\n", myCar)
 	}
 }

@@ -1,13 +1,13 @@
-package orm
+package controller
 
 import (
 	"encoding/json"
 	"fmt"
-	"littlelight/table"
+	"littlelight/types"
 	"os"
 )
 
-func (orm *ORM) saveORM(filename string, metadata OrmMeta) error {	
+func (dbc *DBController) saveMetadata(filename string, metadata Metadata) error {	
 	_, err := os.ReadFile(filename)
 	if err != nil {
 		return err
@@ -26,8 +26,24 @@ func (orm *ORM) saveORM(filename string, metadata OrmMeta) error {
 	return nil
 }
 
-func (orm *ORM) insertTable(filename string, newItem table.Model) error {
-	var mdatas []table.Model
+func (dbc *DBController) readMetadata(filename string) (*Metadata, error){
+	var metadata Metadata
+	
+	data, err := os.ReadFile(filename)
+	if err != nil {
+		return nil, err
+	}
+
+	err = json.Unmarshal(data, &metadata)
+	if err != nil {
+		return nil, err
+	}
+
+	return &metadata, nil
+}
+
+func (dbc *DBController) insertTable(filename string, newItem types.Model) error {
+	var mdatas []types.Model
 	
 	data, err := os.ReadFile(filename)
 	if err != nil {
@@ -53,8 +69,8 @@ func (orm *ORM) insertTable(filename string, newItem table.Model) error {
 	return nil
 }
 
-func (orm *ORM) selectTable(filename string, id string) (*table.Model, error){
-	var mdatas []table.Model
+func (dbc *DBController) selectTable(filename string, id string) (*types.Model, error){
+	var mdatas []types.Model
 
 	dataBytes, err := os.ReadFile(filename)
 	if err != nil{
