@@ -97,6 +97,59 @@ func (dbc *DBController) SelectById(id string, flag bool) (*types.Model, error) 
 	return nil, fmt.Errorf("data not found")
 }
 
+func (dbc *DBController) Select(limit int, offset int, flag bool)([]types.Model, error){
+	if dbc.tableRef.Path == "" {
+		err := dbc.load()
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	mdata, err := dbc.selectTable(dbc.tableRef.DataFile)
+	if err != nil {
+		return nil, err
+	}
+
+	if offset >= len(mdata) {
+		return []types.Model{}, nil
+	}
+
+	var result []types.Model
+	skipped := 0
+
+	if !flag {
+		for _, item := range mdata {
+			if item.Deleted_At == nil {
+				result = append(result, item)
+			}
+			// Aplica o offset manualmente
+			if skipped < offset {
+				skipped++
+				continue
+			}
+			// Aplica o limit
+			if len(result) >= limit {
+				break
+			}
+		}
+	} else {
+		for _, item := range mdata {
+			result = append(result, item)
+			// Aplica o offset manualmente
+			if skipped < offset {
+				skipped++
+				continue
+			}
+			// Aplica o limit
+			if len(result) >= limit {
+				break
+			}
+		}
+	}
+
+	return result, nil
+}
+
 // pega a referencia do DB e busca a o arquivo dbcMeta.json
 func (dbc *DBController) load() error {
 	tbPath := filepath.Join(dbc.dbRef.dbPath, "metadata")

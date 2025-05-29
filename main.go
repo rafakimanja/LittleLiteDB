@@ -13,10 +13,16 @@ type Carro struct {
 func main() {
 	orm := orm.New[Carro]("revenda")
 
-	myCar, err := orm.SelectByID("12f5c589-06d6-4052-aacb-43fdd17a153d")
+	mdatas, err := orm.Select(10, 1)
 	if err != nil {
 		fmt.Println(err.Error())
+	}
+
+	if len(mdatas) >= 0 {
+		for i, item := range(mdatas){
+			fmt.Printf("%d. %s - [%s | %s]\n", i, item.ID, item.Content.Nome, item.Content.Modelo)
+		}
 	} else {
-		fmt.Printf("%v\n", myCar)
+		fmt.Println("Nenhum dado armazenado")
 	}
 }
