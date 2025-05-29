@@ -6,11 +6,19 @@ import (
 	"littlelight/types"
 )
 
-func SelectByID[T any](id string, db string) (*types.ResultModel[T], error){
-	control := controller.New()
-	control.ConnectDB(db)
+type ORM[T any] struct{
+	db string
+}
 
-	model, err := control.Select(id)
+func New[T any](db string) *ORM[T]{
+	return &ORM[T]{db: db}
+}
+
+func (orm *ORM[T]) SelectByID(id string) (*types.ResultModel[T], error){
+	control := controller.New()
+	control.ConnectDB(orm.db)
+
+	model, err := control.SelectById(id, false)
 	if err != nil {
 		return nil, err
 	}

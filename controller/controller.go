@@ -20,7 +20,6 @@ func New() *DBController {
 	return &DBController{}
 }
 
-
 func (dbc *DBController) ConnectDB(dbname string) {
 	database := db.Connect(dbname)
 	dbc.dbRef.db = database
@@ -64,7 +63,7 @@ func (dbc *DBController) Insert(model any) error {
 	return nil
 }
 
-func (dbc *DBController) Select(id string) (*types.Model, error) {
+func (dbc *DBController) SelectById(id string, flag bool) (*types.Model, error) {
 	if dbc.tableRef.Path == "" {
 		err := dbc.load()
 		if err != nil {
@@ -76,12 +75,26 @@ func (dbc *DBController) Select(id string) (*types.Model, error) {
 		return nil, fmt.Errorf("this id is invalid")
 	}
 
-	data, err := dbc.selectTable(dbc.tableRef.DataFile, id)
+	mdata, err := dbc.selectTable(dbc.tableRef.DataFile)
 	if err != nil {
 		return nil, err
 	}
 
-	return data, nil
+	if !flag {
+		for _, data := range(mdata){
+			if data.ID == id && data.Deleted_At == nil {
+				return &data, nil
+			}
+		}
+	} else {
+		for _, data := range(mdata){
+			if data.ID == id {
+				return &data, nil
+			}
+		}
+	}
+
+	return nil, fmt.Errorf("data not found")
 }
 
 // pega a referencia do DB e busca a o arquivo dbcMeta.json

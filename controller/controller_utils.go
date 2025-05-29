@@ -2,7 +2,6 @@ package controller
 
 import (
 	"encoding/json"
-	"fmt"
 	"littlelight/types"
 	"os"
 )
@@ -69,7 +68,7 @@ func (dbc *DBController) insertTable(filename string, newItem types.Model) error
 	return nil
 }
 
-func (dbc *DBController) selectTable(filename string, id string) (*types.Model, error){
+func (dbc *DBController) selectTable(filename string) ([]types.Model, error){
 	var mdatas []types.Model
 
 	dataBytes, err := os.ReadFile(filename)
@@ -82,11 +81,5 @@ func (dbc *DBController) selectTable(filename string, id string) (*types.Model, 
 		return nil, err
 	}
 
-	for _, data := range(mdatas) {
-		if data.ID == id {
-			return &data, nil
-		}
-	}
-
-	return nil, fmt.Errorf("object not found")
+	return mdatas, nil
 }

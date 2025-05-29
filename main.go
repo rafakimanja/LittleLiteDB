@@ -11,7 +11,9 @@ type Carro struct {
 }
 
 func main() {
-	myCar, err := orm.SelectByID[Carro]("12f5c589-06d6-4052-aacb-43fdd17a153d", "revenda")
+	orm := orm.New[Carro]("revenda")
+
+	myCar, err := orm.SelectByID("12f5c589-06d6-4052-aacb-43fdd17a153d")
 	if err != nil {
 		fmt.Println(err.Error())
 	} else {
