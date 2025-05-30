@@ -10,19 +10,25 @@ type Carro struct {
 	Modelo string `json:"modelo"`
 }
 
-func main() {
-	orm := orm.New[Carro]("revenda")
+var lorm *orm.ORM[Carro]
 
-	mdatas, err := orm.Select(10, 1)
+func printTable() {
+	mdatas, err := lorm.Select(10, 1)
 	if err != nil {
 		fmt.Println(err.Error())
+		return
 	}
 
-	if len(mdatas) >= 0 {
-		for i, item := range(mdatas){
-			fmt.Printf("%d. %s - [%s | %s]\n", i, item.ID, item.Content.Nome, item.Content.Modelo)
-		}
-	} else {
-		fmt.Println("Nenhum dado armazenado")
+	for i, item := range mdatas {
+		fmt.Printf("%d. %s - [%s | %s]\n", i, item.ID, item.Content.Nome, item.Content.Modelo)
 	}
+}
+
+func main() {
+	lorm = orm.New[Carro]("revenda")
+
+	reformedCar := Carro{Nome: "Camaro", Modelo: "V8 5.0 2020"}
+
+	lorm.Update("a105d31c-563f-4072-9fc3-5e5a17173a2b", reformedCar)
+	printTable()
 }

@@ -20,15 +20,23 @@ func New[T any](db string) *ORM[T]{
 	return &ORM[T]{db: db}
 }
 
-func (orm *ORM[T]) Insert(data any){
+func (orm *ORM[T]) Select(limit int, offset int) ([]types.ResultModel[T], error){
 	control.ConnectDB(orm.db)
+	var rmodels []types.ResultModel[T]
 
-	err := control.Insert(data)
+	models, err := control.Select(limit, offset, false)
 	if err != nil {
-		fmt.Println(err.Error())
-	} else {
-		fmt.Println("data insert successful")
+		return nil, err
 	}
+
+	for _, item := range(models){
+		result, err := services.ToResultModel[T](&item)
+		if err != nil {
+			return nil, err
+		}
+		rmodels = append(rmodels, *result)
+	}
+	return rmodels, nil
 }
 
 func (orm *ORM[T]) SelectByID(id string) (*types.ResultModel[T], error){
@@ -47,21 +55,24 @@ func (orm *ORM[T]) SelectByID(id string) (*types.ResultModel[T], error){
 	return result, nil
 }
 
-func (orm *ORM[T]) Select(limit int, offset int) ([]types.ResultModel[T], error){
+func (orm *ORM[T]) Insert(data any){
 	control.ConnectDB(orm.db)
-	var rmodels []types.ResultModel[T]
 
-	models, err := control.Select(limit, offset, false)
+	err := control.Insert(data)
 	if err != nil {
-		return nil, err
+		fmt.Println(err.Error())
+	} else {
+		fmt.Println("data insert successful")
 	}
+}
 
-	for _, item := range(models){
-		result, err := services.ToResultModel[T](&item)
-		if err != nil {
-			return nil, err
-		}
-		rmodels = append(rmodels, *result)
+func (orm *ORM[T]) Update(id string, data any){
+	control.ConnectDB(orm.db)
+
+	err := control.Update(id, data)
+	if err != nil {
+		fmt.Println(err.Error())
+	} else {
+		fmt.Println("update data successful")
 	}
-	return rmodels, nil
 }

@@ -7,6 +7,7 @@ import (
 	"littlelight/table"
 	"littlelight/types"
 	"path/filepath"
+	"time"
 
 	"github.com/google/uuid"
 )
@@ -148,6 +149,35 @@ func (dbc *DBController) Select(limit int, offset int, flag bool)([]types.Model,
 	}
 
 	return result, nil
+}
+
+func (dbc *DBController) Update(id string, model any) (error) {
+	if dbc.tableRef.Path == "" {
+		err := dbc.load()
+		if err != nil {
+			return err
+		}
+	}
+
+	newModel, err := services.ToModel(model)
+	if err != nil {
+		return err
+	}
+
+	oldModel, err := dbc.SelectById(id, false)
+	if err != nil {
+		return err
+	}
+
+	oldModel.Content = newModel.Content
+	oldModel.Updated_At = time.Now()
+
+	err = dbc.updateTable(dbc.tableRef.DataFile, *oldModel)
+	if err != nil {
+		return err
+	} else {
+		return nil
+	}
 }
 
 // pega a referencia do DB e busca a o arquivo dbcMeta.json

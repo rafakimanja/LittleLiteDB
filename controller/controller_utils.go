@@ -2,6 +2,7 @@ package controller
 
 import (
 	"encoding/json"
+	"fmt"
 	"littlelight/types"
 	"os"
 )
@@ -41,6 +42,22 @@ func (dbc *DBController) readMetadata(filename string) (*Metadata, error){
 	return &metadata, nil
 }
 
+func (dbc *DBController) selectTable(filename string) ([]types.Model, error){
+	var mdatas []types.Model
+
+	dataBytes, err := os.ReadFile(filename)
+	if err != nil{
+		return nil, err
+	}
+
+	err = json.Unmarshal(dataBytes, &mdatas)
+	if err != nil {
+		return nil, err
+	}
+
+	return mdatas, nil
+}
+
 func (dbc *DBController) insertTable(filename string, newItem types.Model) error {
 	var mdatas []types.Model
 	
@@ -68,18 +85,34 @@ func (dbc *DBController) insertTable(filename string, newItem types.Model) error
 	return nil
 }
 
-func (dbc *DBController) selectTable(filename string) ([]types.Model, error){
+func (dbc *DBController) updateTable(filename string, updateItem types.Model) error {
 	var mdatas []types.Model
 
-	dataBytes, err := os.ReadFile(filename)
-	if err != nil{
-		return nil, err
-	}
-
-	err = json.Unmarshal(dataBytes, &mdatas)
+	data, err := os.ReadFile(filename)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
-	return mdatas, nil
+	err = json.Unmarshal(data, &mdatas)
+	if err != nil {
+		return err
+	}
+
+	for i, data := range(mdatas){
+		if data.ID == updateItem.ID {
+			mdatas[i] = updateItem
+			
+			ndata, err := json.MarshalIndent(mdatas, "", "  ")
+			if err != nil {
+				return err
+			}
+
+			err = os.WriteFile(filename, ndata, 0755)
+			if err != nil {
+				return err
+			}
+			return nil
+		}
+	}
+	return fmt.Errorf("item not found")
 }
