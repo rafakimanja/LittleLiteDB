@@ -116,3 +116,43 @@ func (dbc *DBController) updateTable(filename string, updateItem types.Model) er
 	}
 	return fmt.Errorf("item not found")
 }
+
+func (dbc *DBController) deleteTable(filename string, idItem string) error {
+	var mdatas []types.Model
+
+	dataBytes, err := os.ReadFile(filename)
+	if err != nil {
+		return err
+	}
+
+	err = json.Unmarshal(dataBytes, &mdatas)
+	if err != nil {
+		return err
+	}
+
+	var position int = -1
+	for i, item := range(mdatas) {
+		fmt.Printf("i. elemento: %d, %v\n", i, item)
+		if item.ID == idItem {
+			position = i
+			break
+		}
+	}
+
+	if position == -1 {
+		return fmt.Errorf("don't find element")
+	}
+
+	mdatas = append(mdatas[:position], mdatas[position+1:]...)
+	ndata, err := json.MarshalIndent(mdatas, "", "  ")
+	if err != nil {
+		return err
+	}
+
+	err = os.WriteFile(filename, ndata, 0755)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}

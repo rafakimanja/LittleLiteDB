@@ -76,3 +76,14 @@ func (orm *ORM[T]) Update(id string, data any){
 		fmt.Println("update data successful")
 	}
 }
+
+func (orm *ORM[T]) Delete(id string, delete bool) {
+	control.ConnectDB(orm.db)
+
+	err := control.Delete(id, delete)
+	if err != nil {
+		fmt.Println(err.Error())
+	} else {
+		fmt.Println("delete data successful")
+	}
+}

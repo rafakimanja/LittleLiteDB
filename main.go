@@ -26,9 +26,5 @@ func printTable() {
 
 func main() {
 	lorm = orm.New[Carro]("revenda")
-
-	reformedCar := Carro{Nome: "Camaro", Modelo: "V8 5.0 2020"}
-
-	lorm.Update("a105d31c-563f-4072-9fc3-5e5a17173a2b", reformedCar)
-	printTable()
+	lorm.Delete("12f5c589-06d6-4052-aacb-43fdd17a153d", false)
 }

@@ -151,7 +151,7 @@ func (dbc *DBController) Select(limit int, offset int, flag bool)([]types.Model,
 	return result, nil
 }
 
-func (dbc *DBController) Update(id string, model any) (error) {
+func (dbc *DBController) Update(id string, model any) error {
 	if dbc.tableRef.Path == "" {
 		err := dbc.load()
 		if err != nil {
@@ -177,6 +177,31 @@ func (dbc *DBController) Update(id string, model any) (error) {
 		return err
 	} else {
 		return nil
+	}
+}
+
+func (dbc *DBController) Delete(id string, flag bool) error {
+	if dbc.tableRef.Path == "" {
+		err := dbc.load()
+		if err != nil {
+			return err
+		}
+	}
+
+	if !flag {
+		element, err := dbc.SelectById(id, false)
+		if err != nil {
+			return err
+		}
+
+		now := time.Now()
+		element.Deleted_At = &now
+
+		err = dbc.updateTable(dbc.tableRef.DataFile, *element)
+		return err
+	} else {
+		err := dbc.deleteTable(dbc.tableRef.DataFile, id)
+		return err
 	}
 }
 
