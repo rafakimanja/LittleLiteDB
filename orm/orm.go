@@ -20,11 +20,11 @@ func New[T any](db string) *ORM[T]{
 	return &ORM[T]{db: db}
 }
 
-func (orm *ORM[T]) Select(limit int, offset int) ([]types.ResultModel[T], error){
+func (orm *ORM[T]) Select(limit int, offset int, delete bool) ([]types.ResultModel[T], error){
 	control.ConnectDB(orm.db)
 	var rmodels []types.ResultModel[T]
 
-	models, err := control.Select(limit, offset, false)
+	models, err := control.Select(limit, offset, delete)
 	if err != nil {
 		return nil, err
 	}
@@ -39,10 +39,10 @@ func (orm *ORM[T]) Select(limit int, offset int) ([]types.ResultModel[T], error)
 	return rmodels, nil
 }
 
-func (orm *ORM[T]) SelectByID(id string) (*types.ResultModel[T], error){
+func (orm *ORM[T]) SelectByID(id string, delete bool) (*types.ResultModel[T], error){
 	control.ConnectDB(orm.db)
 
-	model, err := control.SelectById(id, false)
+	model, err := control.SelectById(id, delete)
 	if err != nil {
 		return nil, err
 	}

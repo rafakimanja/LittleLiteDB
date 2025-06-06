@@ -13,7 +13,7 @@ type Carro struct {
 var lorm *orm.ORM[Carro]
 
 func printTable() {
-	mdatas, err := lorm.Select(10, 1)
+	mdatas, err := lorm.Select(10, 1, false)
 	if err != nil {
 		fmt.Println(err.Error())
 		return

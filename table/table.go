@@ -16,11 +16,6 @@ type Table struct {
 	nameTable string
 }
 
-type TableConfig struct {
-	Field string `json:"field"`
-	Types string `json:"type"`
-}
-
 // criar o Obj Table (criar o path, a pasta e o objeto)
 func New(db *db.Database, table any) (*Table, error) {
 	types := reflect.TypeOf(table)

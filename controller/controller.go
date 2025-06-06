@@ -123,7 +123,7 @@ func (dbc *DBController) Select(limit int, offset int, flag bool)([]types.Model,
 			if item.Deleted_At == nil {
 				result = append(result, item)
 			}
-			// Aplica o offset manualmente
+			// Aplica o offset
 			if skipped < offset {
 				skipped++
 				continue
@@ -136,12 +136,10 @@ func (dbc *DBController) Select(limit int, offset int, flag bool)([]types.Model,
 	} else {
 		for _, item := range mdata {
 			result = append(result, item)
-			// Aplica o offset manualmente
 			if skipped < offset {
 				skipped++
 				continue
 			}
-			// Aplica o limit
 			if len(result) >= limit {
 				break
 			}
