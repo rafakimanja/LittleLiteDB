@@ -1,4 +1,4 @@
-module littlelight
+module littlelite
 
 go 1.23.1
 

@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"littlelight/orm"
+	"littlelite/orm"
 )
 
 type Carro struct {

@@ -2,9 +2,9 @@ package orm
 
 import (
 	"fmt"
-	"littlelight/controller"
-	"littlelight/services"
-	"littlelight/types"
+	"littlelite/controller"
+	"littlelite/services"
+	"littlelite/types"
 )
 
 type ORM[T any] struct{

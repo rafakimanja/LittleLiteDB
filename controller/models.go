@@ -1,8 +1,8 @@
 package controller
 
 import (
-	"littlelight/db"
-	"littlelight/types"
+	"littlelite/db"
+	"littlelite/types"
 )
 
 type ModelDB struct {

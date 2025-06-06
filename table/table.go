@@ -2,9 +2,9 @@ package table
 
 import (
 	"fmt"
-	"littlelight/db"
-	"littlelight/services"
-	"littlelight/types"
+	"littlelite/db"
+	"littlelite/services"
+	"littlelite/types"
 	"os"
 	"reflect"
 	"strings"

@@ -2,10 +2,10 @@ package controller
 
 import (
 	"fmt"
-	"littlelight/db"
-	"littlelight/services"
-	"littlelight/table"
-	"littlelight/types"
+	"littlelite/db"
+	"littlelite/services"
+	"littlelite/table"
+	"littlelite/types"
 	"path/filepath"
 	"time"
 

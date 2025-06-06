@@ -2,7 +2,7 @@ package services
 
 import (
 	"encoding/json"
-	"littlelight/types"
+	"littlelite/types"
 )
 
 func ToResultModel[T any](model *types.Model) (*types.ResultModel[T], error) {
