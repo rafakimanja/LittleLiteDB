@@ -3,7 +3,7 @@ package controller
 import (
 	"encoding/json"
 	"fmt"
-	"littlelite/types"
+	"github.com/rafakimanja/LittleLiteDB/types"
 	"os"
 )
 

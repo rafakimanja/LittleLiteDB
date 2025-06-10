@@ -2,7 +2,7 @@ package services
 
 import (
 	"encoding/json"
-	"littlelite/types"
+	"github.com/rafakimanja/LittleLiteDB/types"
 )
 
 func ToResultModel[T any](model *types.Model) (*types.ResultModel[T], error) {

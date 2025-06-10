@@ -1,4 +1,4 @@
-module littlelite
+module github.com/rafakimanja/LittleLiteDB
 
 go 1.23.1
 
