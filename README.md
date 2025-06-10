@@ -42,4 +42,4 @@ Por padrão, o LLDB vem com seu próprio ORM o que facilita na criação na impl
 `Update(id string, data any)` | Atualiza um dado na tabela de acordo com o ID
 `Delete(id string, delete bool)` | Deleta um dado no BD de acordo com ID
 
-Campos que contém a opção variáveis booleanas `delete`, refere-se a dados que foram apagados por _soft delete_, passando o parâmetro como `false` estes dados não serão exibidos ou alterados, caso queira vizualiza-los ou apaga-los de fato, basta passar `true` como parâmetro. 
+Campos que contém a opção de variáveis booleanas `delete`, refere-se a dados que foram apagados por _soft delete_, passando o parâmetro como `false` estes dados não serão exibidos ou alterados, caso queira vizualiza-los ou apaga-los de fato, basta passar `true` como parâmetro. 
