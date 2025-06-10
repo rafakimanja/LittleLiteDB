@@ -35,7 +35,7 @@ O LLDB possui soft delete, ou seja, um campo que indica a data de quando o usuar
 Por padrão, o LLDB vem com seu próprio ORM o que facilita na criação na implementação do banco de dados no seu sistema. O ORM vem com 5 funcionalidades básicas para a manipulação do banco:
 
 | Função | Descrição |
-:-------:|:---------:
+:-------|:---------
 `Select(limit int, offset int, delete bool)`| Retorna os elementos da tabela dentro do _limit_ e _offset_ definidos
 `SelectByID(id string, delete bool)` | Retorna um elemento com base no ID
 `Insert(data any)` | Insere um novo dado na tabela
