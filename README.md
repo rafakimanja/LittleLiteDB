@@ -73,4 +73,4 @@ Existem alguns pontos importântes na hora de criar e manipular suas tabelas que
 * É necessário deixar os atributos da struct como públicos, ou seja, primeira letra maiúscula, exemplo: `Name string`.
 
 
-Temos disponivilizado um exemplo completo [aqui](/examples/car_example.go)
+Temos disponibilizado um exemplo completo [aqui](/examples/car_example.go)
