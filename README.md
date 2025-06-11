@@ -1,7 +1,7 @@
 # LittleLiteDB
 
-O LittleLiteDB é um banco de dados não relacional desenvolvido em Golang. Ele tem o propósito de ser leve e prático, seu caso de usa, é o de testes ou pequenos apps,
-salva os dados em arquivos ```json```, portanto, não é recomendado para dados sensíveis ou produção, pois, não existe uma camada de segurança dos dados.
+O LittleLiteDB é um banco de dados não relacional desenvolvido em Golang. Ele tem o propósito de ser leve e prático, seu caso de uso, é o de testes ou pequenos apps,
+ele salva os dados em arquivos ```json```, portanto, não é recomendado para dados sensíveis ou produção, pois, não existe uma camada de segurança dos dados.
 
 ## 01. Instalação
 
