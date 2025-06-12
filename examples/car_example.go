@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+
 	"github.com/rafakimanja/LittleLiteDB/orm"
 )
 
@@ -11,6 +12,11 @@ type Car struct {
 }
 
 var lorm *orm.ORM[Car] = orm.New[Car]("database")
+
+//function to migrate the table 
+func MigrationCar(){
+	lorm.MigrateTable(Car{})
+}
 
 //function for insert new car in database
 func InsertCar(){

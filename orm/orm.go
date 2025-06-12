@@ -20,6 +20,17 @@ func New[T any](db string) *ORM[T]{
 	return &ORM[T]{db: db}
 }
 
+func (orm *ORM[T]) MigrateTable(table any){
+	control.ConnectDB(orm.db)
+
+	err := control.Migrate(table)
+	if err != nil {
+		fmt.Println(err.Error())
+	} else {
+		fmt.Println("migration successfully completed")
+	}
+}
+
 func (orm *ORM[T]) Select(limit int, offset int, delete bool) ([]types.ResultModel[T], error){
 	control.ConnectDB(orm.db)
 	var rmodels []types.ResultModel[T]

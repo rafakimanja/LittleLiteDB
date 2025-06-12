@@ -27,11 +27,10 @@ func (dbc *DBController) ConnectDB(dbname string) {
 	dbc.dbRef.dbPath = database.GetPath()
 }
 
-func (dbc *DBController) Migrate(tableAny any) {
+func (dbc *DBController) Migrate(tableAny any) error {
 	tb, err := table.New(dbc.dbRef.db, tableAny)
 	if err != nil {
-		fmt.Println(err.Error())
-		return
+		return err
 	}
 	dbc.tableRef.Path = tb.GetPath()
 	dbc.tableRef.Name = tb.GetNameTable()
@@ -40,8 +39,9 @@ func (dbc *DBController) Migrate(tableAny any) {
 
 	err = dbc.save()
 	if err != nil {
-		fmt.Println(err)
+		return err
 	}
+	return nil
 }
 
 func (dbc *DBController) Insert(model any) error {
