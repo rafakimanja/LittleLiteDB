@@ -1,7 +1,8 @@
 package orm
 
 import (
-	"fmt"
+	"log/slog"
+
 	"github.com/rafakimanja/LittleLiteDB/controller"
 	"github.com/rafakimanja/LittleLiteDB/services"
 	"github.com/rafakimanja/LittleLiteDB/types"
@@ -13,26 +14,36 @@ type ORM[T any] struct{
 
 var (
 	control controller.DBController
+	logger *slog.Logger
 )
 
 func New[T any](db string) *ORM[T]{
+	logger = slog.Default()
 	control = *controller.New()
 	return &ORM[T]{db: db}
 }
 
 func (orm *ORM[T]) MigrateTable(table any){
-	control.ConnectDB(orm.db)
-
-	err := control.Migrate(table)
+	err := control.ConnectDB(orm.db)
 	if err != nil {
-		fmt.Println(err.Error())
+		logger.Error(err.Error())
+		return
+	}
+
+	err = control.Migrate(table)
+	if err != nil {
+		logger.Error(err.Error())
 	} else {
-		fmt.Println("migration successfully completed")
+		logger.Info("migration successfully completed")
 	}
 }
 
 func (orm *ORM[T]) Select(limit int, offset int, delete bool) ([]types.ResultModel[T], error){
-	control.ConnectDB(orm.db)
+	err := control.ConnectDB(orm.db)
+	if err != nil {
+		return nil, err
+	}
+
 	var rmodels []types.ResultModel[T]
 
 	models, err := control.Select(limit, offset, delete)
@@ -51,7 +62,10 @@ func (orm *ORM[T]) Select(limit int, offset int, delete bool) ([]types.ResultMod
 }
 
 func (orm *ORM[T]) SelectByID(id string, delete bool) (*types.ResultModel[T], error){
-	control.ConnectDB(orm.db)
+	err := control.ConnectDB(orm.db)
+	if err != nil {
+		return nil, err
+	}
 
 	model, err := control.SelectById(id, delete)
 	if err != nil {
@@ -67,34 +81,46 @@ func (orm *ORM[T]) SelectByID(id string, delete bool) (*types.ResultModel[T], er
 }
 
 func (orm *ORM[T]) Insert(data any){
-	control.ConnectDB(orm.db)
-
-	err := control.Insert(data)
+	err := control.ConnectDB(orm.db)
 	if err != nil {
-		fmt.Println(err.Error())
+		logger.Error(err.Error())
+		return
+	}
+
+	err = control.Insert(data)
+	if err != nil {
+		logger.Error(err.Error())
 	} else {
-		fmt.Println("data insert successful")
+		logger.Info("data insert successful")
 	}
 }
 
 func (orm *ORM[T]) Update(id string, data any){
-	control.ConnectDB(orm.db)
-
-	err := control.Update(id, data)
+	err := control.ConnectDB(orm.db)
 	if err != nil {
-		fmt.Println(err.Error())
+		logger.Error(err.Error())
+		return
+	}
+
+	err = control.Update(id, data)
+	if err != nil {
+		logger.Error(err.Error())
 	} else {
-		fmt.Println("update data successful")
+		logger.Info("update data successful")
 	}
 }
 
 func (orm *ORM[T]) Delete(id string, delete bool) {
-	control.ConnectDB(orm.db)
-
-	err := control.Delete(id, delete)
+	err := control.ConnectDB(orm.db)
 	if err != nil {
-		fmt.Println(err.Error())
+		logger.Error(err.Error())
+		return
+	}
+
+	err = control.Delete(id, delete)
+	if err != nil {
+		logger.Error(err.Error())
 	} else {
-		fmt.Println("delete data successful")
+		logger.Info("delete data successful")
 	}
 }

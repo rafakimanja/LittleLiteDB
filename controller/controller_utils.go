@@ -18,7 +18,7 @@ func (dbc *DBController) saveMetadata(filename string, metadata Metadata) error 
 		return err
 	}
 
-	err = os.WriteFile(filename, data, 0755)
+	err = os.WriteFile(filename, data, 0644)
 	if err != nil {
 		return err
 	}
@@ -29,12 +29,12 @@ func (dbc *DBController) saveMetadata(filename string, metadata Metadata) error 
 func (dbc *DBController) readMetadata(filename string) (*Metadata, error){
 	var metadata Metadata
 	
-	data, err := os.ReadFile(filename)
+	dataBytes, err := os.ReadFile(filename)
 	if err != nil {
 		return nil, err
 	}
 
-	err = json.Unmarshal(data, &metadata)
+	err = json.Unmarshal(dataBytes, &metadata)
 	if err != nil {
 		return nil, err
 	}
@@ -43,96 +43,41 @@ func (dbc *DBController) readMetadata(filename string) (*Metadata, error){
 }
 
 func (dbc *DBController) selectTable(filename string) ([]types.Model, error){
-	var mdatas []types.Model
-
-	dataBytes, err := os.ReadFile(filename)
-	if err != nil{
-		return nil, err
-	}
-
-	err = json.Unmarshal(dataBytes, &mdatas)
-	if err != nil {
-		return nil, err
-	}
-
-	return mdatas, nil
+	return loadTable(filename)
 }
 
 func (dbc *DBController) insertTable(filename string, newItem types.Model) error {
-	var mdatas []types.Model
-	
-	data, err := os.ReadFile(filename)
+	mdatas, err := loadTable(filename)
 	if err != nil {
 		return err
 	}
-
-	err = json.Unmarshal(data, &mdatas)
-	if err != nil {
-		return err
-	}
-
 	mdatas = append(mdatas, newItem)
-	ndata, err := json.MarshalIndent(mdatas, "", "  ")
-	if err != nil {
-		return err
-	}
-
-	err = os.WriteFile(filename, ndata, 0755)
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return saveTable(filename, mdatas)
 }
 
 func (dbc *DBController) updateTable(filename string, updateItem types.Model) error {
-	var mdatas []types.Model
-
-	data, err := os.ReadFile(filename)
+	mdatas, err := loadTable(filename)
 	if err != nil {
 		return err
 	}
-
-	err = json.Unmarshal(data, &mdatas)
-	if err != nil {
-		return err
-	}
-
+	
 	for i, data := range(mdatas){
 		if data.ID == updateItem.ID {
 			mdatas[i] = updateItem
-			
-			ndata, err := json.MarshalIndent(mdatas, "", "  ")
-			if err != nil {
-				return err
-			}
-
-			err = os.WriteFile(filename, ndata, 0755)
-			if err != nil {
-				return err
-			}
-			return nil
+			return saveTable(filename, mdatas)
 		}
 	}
 	return fmt.Errorf("item not found")
 }
 
 func (dbc *DBController) deleteTable(filename string, idItem string) error {
-	var mdatas []types.Model
-
-	dataBytes, err := os.ReadFile(filename)
+	mdatas, err := loadTable(filename)
 	if err != nil {
 		return err
 	}
 
-	err = json.Unmarshal(dataBytes, &mdatas)
-	if err != nil {
-		return err
-	}
-
-	var position int = -1
+	position := -1
 	for i, item := range(mdatas) {
-		fmt.Printf("i. elemento: %d, %v\n", i, item)
 		if item.ID == idItem {
 			position = i
 			break
@@ -140,19 +85,29 @@ func (dbc *DBController) deleteTable(filename string, idItem string) error {
 	}
 
 	if position == -1 {
-		return fmt.Errorf("don't find element")
+		return fmt.Errorf("item with ID %s not found", idItem)
 	}
 
 	mdatas = append(mdatas[:position], mdatas[position+1:]...)
-	ndata, err := json.MarshalIndent(mdatas, "", "  ")
+	return saveTable(filename, mdatas)
+}
+
+func loadTable(filename string) ([]types.Model, error){
+	var mdatas []types.Model
+
+	dataBytes, err := os.ReadFile(filename)
+	if err != nil {
+		return nil, err
+	}
+
+	err = json.Unmarshal(dataBytes, &mdatas)
+	return mdatas, err
+}
+
+func saveTable(filename string, data []types.Model) error {
+	bytes, err := json.MarshalIndent(data, "", "  ")
 	if err != nil {
 		return err
 	}
-
-	err = os.WriteFile(filename, ndata, 0755)
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return os.WriteFile(filename, bytes, 0644)
 }

@@ -2,30 +2,37 @@ package table
 
 import (
 	"fmt"
-	"github.com/rafakimanja/LittleLiteDB/db"
-	"github.com/rafakimanja/LittleLiteDB/services"
-	"github.com/rafakimanja/LittleLiteDB/types"
+	"log/slog"
 	"os"
 	"reflect"
 	"strings"
+
+	"github.com/rafakimanja/LittleLiteDB/db"
+	"github.com/rafakimanja/LittleLiteDB/services"
+	"github.com/rafakimanja/LittleLiteDB/types"
+)
+
+var (
+	logger *slog.Logger
 )
 
 type Table struct {
-	path      string
-	dbPath    string
-	nameTable string
+	path   string
+	dbPath string
+	name   string
 }
 
 // criar o Obj Table (criar o path, a pasta e o objeto)
 func New(db *db.Database, table any) (*Table, error) {
-	types := reflect.TypeOf(table)
+	logger = slog.Default()
+	tTypes := reflect.TypeOf(table)
 	tbl := &Table{
-		path:       services.FSbuildPath(db.GetPath(), types.Name()),
-		dbPath:    db.GetPath(),
-		nameTable: types.Name(),
+		path:   services.FSbuildPath(db.GetPath(), tTypes.Name()),
+		dbPath: db.GetPath(),
+		name:   tTypes.Name(),
 	}
 	if !tbl.searchTable() {
-		
+
 		err := tbl.buildTable()
 		if err != nil {
 			return nil, err
@@ -46,7 +53,7 @@ func (t *Table) searchTable() bool {
 		//busca por arquivos
 		entries, err := os.ReadDir(t.path)
 		if err != nil {
-			fmt.Println(err.Error())
+			logger.Error(err.Error())
 		} else {
 			for _, entry := range entries {
 				//ve se e um arquivo, e se tem .json no nome
@@ -69,24 +76,24 @@ func (t *Table) create(table any) error {
 		return fmt.Errorf("table path does not exist")
 	}
 
-	err := t.createFile(t.nameTable)
+	err := t.createFile(t.name)
 	if err != nil {
 		return err
 	}
 
-	if strings.ToLower(t.nameTable) != "ormmeta" {
+	if strings.ToLower(t.name) != "ormmeta" {
 		tableModel, err := types.Init(table)
 		if err != nil {
 			return err
 		}
 
 		configs := t.extractConfig(tableModel.GetContent())
-		err = t.createConfigFile(configs, t.nameTable)
+		err = t.createConfigFile(configs, t.name)
 		if err != nil {
 			return err
 		}
 	}
-	
+
 	return nil
 }
 
@@ -101,7 +108,7 @@ func (t *Table) extractConfig(fields any) []TableConfig {
 		{Field: "updated_at", Types: "Time"},
 		{Field: "deleted_at", Types: "Time"},
 	}
-	
+
 	typ := reflect.TypeOf(fields)
 	if typ.Kind() == reflect.Ptr {
 		typ = typ.Elem()
@@ -119,6 +126,6 @@ func (t *Table) GetPath() string {
 	return t.path
 }
 
-func (t *Table) GetNameTable() string {
-	return t.nameTable
+func (t *Table) GetName() string {
+	return t.name
 }

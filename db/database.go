@@ -1,6 +1,7 @@
 package db
 
 import (
+	"fmt"
 	"log/slog"
 	"os"
 	"strings"
@@ -15,22 +16,23 @@ type Database struct {
 	name string
 }
 
-func Connect(name string) *Database {
+func Connect(name string) (*Database, error) {
 	logger = slog.Default()
 	conector := Database{path: buildPath(name), name: strings.ToLower(name)}
-	conector.searchDB()
-	return &conector
+	if err := conector.searchDB(); err != nil {
+		return nil, err
+	}
+	return &conector, nil
 }
 
-func (d *Database) searchDB() {
+func (d *Database) searchDB() error {
 	if !d.validPath() {
-		if d.buildDB() {
-			logger.Info("database make's succeful!")
-		} else {
-			logger.Error("erro in build database")
-			os.Exit(1)
+		if flag := d.buildDB(); !flag {
+			return fmt.Errorf("failed to create database directory")
 		}
+		logger.Info("database created successfully")
 	}
+	return nil
 }
 
 func (d *Database) buildDB() bool {
@@ -43,10 +45,7 @@ func (d *Database) buildDB() bool {
 
 func (d *Database) validPath() bool {
 	_, err := os.Stat(d.path)
-	if os.IsNotExist(err) {
-		return false
-	}
-	return true
+	return !os.IsNotExist(err)
 }
 
 func (d *Database) GetPath() string {
@@ -58,8 +57,8 @@ func (d *Database) GetName() string {
 }
 
 func refactorName(name string) string {
-	name_lower := strings.ToLower(name)
-	return strings.TrimSpace(name_lower)
+	nameLower := strings.ToLower(name)
+	return strings.TrimSpace(nameLower)
 }
 
 func buildPath(name string) string {

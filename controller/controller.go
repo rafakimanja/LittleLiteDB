@@ -21,10 +21,14 @@ func New() *DBController {
 	return &DBController{}
 }
 
-func (dbc *DBController) ConnectDB(dbname string) {
-	database := db.Connect(dbname)
+func (dbc *DBController) ConnectDB(dbname string) error {
+	database, err := db.Connect(dbname)
+	if err != nil {
+		return err
+	}
 	dbc.dbRef.db = database
 	dbc.dbRef.dbPath = database.GetPath()
+	return nil
 }
 
 func (dbc *DBController) Migrate(tableAny any) error {
@@ -33,9 +37,9 @@ func (dbc *DBController) Migrate(tableAny any) error {
 		return err
 	}
 	dbc.tableRef.Path = tb.GetPath()
-	dbc.tableRef.Name = tb.GetNameTable()
-	dbc.tableRef.DataFile = filepath.Join(tb.GetPath(), tb.GetNameTable()+".json")
-	dbc.tableRef.ConfigFile = filepath.Join(tb.GetPath(), tb.GetNameTable()+".config.json")
+	dbc.tableRef.Name = tb.GetName()
+	dbc.tableRef.DataFile = filepath.Join(tb.GetPath(), tb.GetName()+".json")
+	dbc.tableRef.ConfigFile = filepath.Join(tb.GetPath(), tb.GetName()+".config.json")
 
 	err = dbc.save()
 	if err != nil {
@@ -228,13 +232,16 @@ func (dbc *DBController) save() error {
 		Version: "1.0",
 	}
 
-	db := db.Connect(dbc.dbRef.db.GetName())
+	db, err := db.Connect(dbc.dbRef.db.GetName())
+	if err != nil {
+		return err
+	}
 	tbl, err := table.New(db, metadados)
 	if err != nil {
 		return fmt.Errorf("error create table metadata")
 	}
 
-	err = dbc.saveMetadata(filepath.Join(tbl.GetPath(), tbl.GetNameTable()+".json"), metadados)
+	err = dbc.saveMetadata(filepath.Join(tbl.GetPath(), tbl.GetName()+".json"), metadados)
 	if err != nil {
 		return fmt.Errorf("error save metadata to controller")
 	}
