@@ -4,10 +4,12 @@ import (
 	"encoding/json"
 	"os"
 	"path/filepath"
+	"strings"
 )
 
 func (t *Table) createFile(name string) error {
-	fullPath := filepath.Join(t.path, name)
+	lowerName := strings.ToLower(name)
+	fullPath := filepath.Join(t.path, lowerName)
 	file, err := os.Create(fullPath+".json")
 	if err != nil {
 		return err
@@ -20,7 +22,8 @@ func (t *Table) createFile(name string) error {
 }
 
 func (t *Table) createConfigFile(dados []TableConfig, name string) error {
-	fullPath := filepath.Join(t.path, name)
+	lowerName := strings.ToLower(name)
+	fullPath := filepath.Join(t.path, lowerName)
 	file, err := os.Create(fullPath+".config.json")
 	if err != nil {
 		return err

@@ -52,3 +52,7 @@ func DeleteCar(){
 
 	lorm.Delete(id, false)
 }
+
+func main(){
+	MigrationCar()
+}
