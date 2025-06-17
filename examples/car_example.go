@@ -20,7 +20,7 @@ func MigrationCar(){
 
 //function for insert new car in database
 func InsertCar(){
-	newCar := Car{Name: "Ford Mustang", Model: "5.0 V8 2024"}
+	newCar := Car{Name: "Mustang", Model: "V8 5.0 2024"}
 
 	lorm.Insert(newCar)
 }
@@ -34,8 +34,13 @@ func SelectCar(){
 	}
 
 	for i, item := range cars {
-		fmt.Printf("%d. %s - [%s | %s]\n", i, item.ID, item.Content.Name, item.Content.Model)
+		fmt.Printf("%d. %s - [%s | %s]\n", i+1, item.ID, item.Content.Name, item.Content.Model)
 	}
+}
+
+//function for get car with ID
+func GetCar(id string){
+	fmt.Println(lorm.SelectByID(id, false))
 }
 
 //function to update car in database
@@ -46,9 +51,5 @@ func UpdateCar(id string){
 
 //function to delete car in database
 func DeleteCar(id string){
-	lorm.Delete(id, false)
-}
-
-func main(){
-	DeleteCar("5bba53de-3e3f-494c-b797-8d3664aaabf9")
+	lorm.Delete(id, true)
 }
