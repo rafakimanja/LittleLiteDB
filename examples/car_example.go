@@ -39,21 +39,16 @@ func SelectCar(){
 }
 
 //function to update car in database
-func UpdateCar(){
-	id := "6b0c727f-1fd8-47df-8e4d-0339475b14e1" //id example
+func UpdateCar(id string){
 	updateCar := Car{Name: "Ford Mustang", Model: "Eletric 2025"}
-
 	lorm.Update(id, updateCar)
 }
 
 //function to delete car in database
-func DeleteCar(){
-	id := "6b0c727f-1fd8-47df-8e4d-0339475b14e1" //id example
-
+func DeleteCar(id string){
 	lorm.Delete(id, false)
 }
 
 func main(){
-	MigrationCar()
-	InsertCar()
+	DeleteCar("5bba53de-3e3f-494c-b797-8d3664aaabf9")
 }
