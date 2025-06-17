@@ -54,5 +54,5 @@ func DeleteCar(){
 }
 
 func main(){
-	MigrationCar()
+	SelectCar()
 }

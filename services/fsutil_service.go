@@ -21,20 +21,29 @@ func FSvalidPath(path string) bool {
 	return !os.IsNotExist(err)
 }
 
-func FSbuildJSONFile(dirPath string, name string, suffix string) error {
+func FSvalidFile(path string) bool {
+	_, err := os.Stat(path)
+	return !os.IsNotExist(err)
+}
+
+func FSbuildJSONFile(dirPath string, name string, suffix string) (string, error) {
 	lowerName := strings.ToLower(name)
 	fullPath := filepath.Join(dirPath, lowerName+suffix)
 	if FSvalidPath(dirPath) {	
 		file, err := os.Create(fullPath)
 		if err != nil {
-			return err
+			return "", err
 		}
 
 		defer file.Close()
 
 		_, err = file.WriteString("[]")
-		return err
+		if err != nil {
+			return "", err
+		} else {
+			return fullPath, nil
+		}
 	} else {
-		return fmt.Errorf("dirPath invalid")
+		return "", fmt.Errorf("dirPath invalid")
 	}
 }

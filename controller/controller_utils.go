@@ -3,27 +3,29 @@ package controller
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/rafakimanja/LittleLiteDB/types"
 	"os"
+
+	"github.com/rafakimanja/LittleLiteDB/services"
+	"github.com/rafakimanja/LittleLiteDB/types"
 )
 
-func (dbc *DBController) saveMetadata(filename string, metadata Metadata) error {	
-	_, err := os.ReadFile(filename)
-	if err != nil {
-		return err
-	}
+func (dbc *DBController) writeMetadata(pathFile string, metadata Metadata) error {	
+	if services.FSvalidFile(pathFile) {
 
-	data, err := json.MarshalIndent(metadata, "", "  ")
-	if err != nil {
-		return err
-	}
+		_, err := os.ReadFile(pathFile)
+		if err != nil {
+			return err
+		}
 
-	err = os.WriteFile(filename, data, 0644)
-	if err != nil {
-		return err
-	}
+		data, err := json.MarshalIndent(metadata, "", "  ")
+		if err != nil {
+			return err
+		}
 
-	return nil
+		return os.WriteFile(pathFile, data, 0644)
+	}
+	
+	return fmt.Errorf("filepath invalid")
 }
 
 func (dbc *DBController) readMetadata(filename string) (*Metadata, error){

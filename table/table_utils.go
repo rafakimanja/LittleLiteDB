@@ -2,41 +2,27 @@ package table
 
 import (
 	"encoding/json"
+	"fmt"
 	"os"
-	"path/filepath"
-	"strings"
+
+	"github.com/rafakimanja/LittleLiteDB/services"
 )
 
-func (t *Table) createFile(name string) error {
-	lowerName := strings.ToLower(name)
-	fullPath := filepath.Join(t.path, lowerName)
-	file, err := os.Create(fullPath+".json")
-	if err != nil {
-		return err
+func (t *Table) writeConfigFile(pathFile string, dados []TableConfig) error {
+	if services.FSvalidFile(pathFile){
+
+		_, err := os.ReadFile(pathFile)
+		if err != nil {
+			return err
+		}
+
+		bytes, err := json.MarshalIndent(dados, "", "  ")
+		if err != nil {
+			return err
+		}
+
+		return os.WriteFile(pathFile, bytes, 0644)
 	}
 
-	defer file.Close()
-
-	_, err = file.WriteString("[]")
-	return err
-}
-
-func (t *Table) createConfigFile(dados []TableConfig, name string) error {
-	lowerName := strings.ToLower(name)
-	fullPath := filepath.Join(t.path, lowerName)
-	file, err := os.Create(fullPath+".config.json")
-	if err != nil {
-		return err
-	}
-
-	defer file.Close()
-
-	encoder := json.NewEncoder(file)
-	encoder.SetIndent("", "  ")
-
-	err = encoder.Encode(dados)
-	if err != nil {
-		return err
-	}
-	return nil
+	return fmt.Errorf("filepath invalid")
 }
