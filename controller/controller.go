@@ -2,12 +2,14 @@ package controller
 
 import (
 	"fmt"
+	"path/filepath"
+	"time"
+
 	"github.com/rafakimanja/LittleLiteDB/db"
+	"github.com/rafakimanja/LittleLiteDB/internal"
 	"github.com/rafakimanja/LittleLiteDB/services"
 	"github.com/rafakimanja/LittleLiteDB/table"
 	"github.com/rafakimanja/LittleLiteDB/types"
-	"path/filepath"
-	"time"
 
 	"github.com/google/uuid"
 )
@@ -230,7 +232,7 @@ func (dbc *DBController) save() error {
 			DataFile:   dbc.tableRef.DataFile,
 			ConfigFile: dbc.tableRef.ConfigFile,
 		},
-		Version: "1.0",
+		Version: internal.VERSION,
 	}
 
 	db, err := db.Connect(dbc.dbRef.db.GetName())
