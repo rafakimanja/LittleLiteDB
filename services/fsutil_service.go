@@ -16,6 +16,27 @@ func FSbuildPath(db_path string, name string) string {
 	return filepath.Join(db_path, tableName)
 }
 
+func FSgetRootPath() (string, error) {
+	dir, err := os.Getwd()
+	if err != nil {
+		return "", err
+	}
+
+	for {
+		if _, err := os.Stat(filepath.Join(dir, "go.mod")); err == nil {
+			return dir, nil // achou a raiz
+		}
+
+		// sobe um nível
+		pai := filepath.Dir(dir)
+		if pai == dir {
+			break // chegou no topo
+		}
+		dir = pai
+	}
+	return "", os.ErrNotExist
+}
+
 func FSvalidPath(path string) bool {
 	_, err := os.Stat(path)
 	return !os.IsNotExist(err)

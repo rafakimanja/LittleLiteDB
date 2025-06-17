@@ -4,7 +4,10 @@ import (
 	"fmt"
 	"log/slog"
 	"os"
+	"path/filepath"
 	"strings"
+
+	"github.com/rafakimanja/LittleLiteDB/services"
 )
 
 var (
@@ -26,7 +29,7 @@ func Connect(name string) (*Database, error) {
 }
 
 func (d *Database) searchDB() error {
-	if !d.validPath() {
+	if !services.FSvalidPath(d.path){
 		if flag := d.buildDB(); !flag {
 			return fmt.Errorf("failed to create database directory")
 		}
@@ -43,11 +46,6 @@ func (d *Database) buildDB() bool {
 	return err == nil
 }
 
-func (d *Database) validPath() bool {
-	_, err := os.Stat(d.path)
-	return !os.IsNotExist(err)
-}
-
 func (d *Database) GetPath() string {
 	return d.path
 }
@@ -56,12 +54,12 @@ func (d *Database) GetName() string {
 	return d.name
 }
 
-func refactorName(name string) string {
-	nameLower := strings.ToLower(name)
-	return strings.TrimSpace(nameLower)
-}
-
 func buildPath(name string) string {
-	dbName := refactorName(name)
-	return "./LLDB/" + dbName
+	pt, err := services.FSgetRootPath()
+	if err != nil {
+		fmt.Println(err.Error())
+		os.Exit(1)
+	}
+	dbName := services.FSrefactorName(name)
+	return filepath.Join(pt, "lldb", dbName)
 }
