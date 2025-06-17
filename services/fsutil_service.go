@@ -1,6 +1,7 @@
 package services
 
 import (
+	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
@@ -18,4 +19,22 @@ func FSbuildPath(db_path string, name string) string {
 func FSvalidPath(path string) bool {
 	_, err := os.Stat(path)
 	return !os.IsNotExist(err)
+}
+
+func FSbuildJSONFile(dirPath string, name string, suffix string) error {
+	lowerName := strings.ToLower(name)
+	fullPath := filepath.Join(dirPath, lowerName+suffix)
+	if FSvalidPath(dirPath) {	
+		file, err := os.Create(fullPath)
+		if err != nil {
+			return err
+		}
+
+		defer file.Close()
+
+		_, err = file.WriteString("[]")
+		return err
+	} else {
+		return fmt.Errorf("dirPath invalid")
+	}
 }
