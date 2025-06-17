@@ -76,19 +76,24 @@ func (t *Table) create(table any) error {
 		return fmt.Errorf("table path does not exist")
 	}
 
-	err := t.createFile(t.name)
+	_, err := services.FSbuildJSONFile(t.path, t.name, ".json")
 	if err != nil {
 		return err
 	}
 
-	if strings.ToLower(t.name) != "ormmeta" {
+	if strings.ToLower(t.name) != "metadata" {
 		tableModel, err := types.Init(table)
 		if err != nil {
 			return err
 		}
 
+		fp, err := services.FSbuildJSONFile(t.path, t.name, ".config.json")
+		if err != nil {
+			return err
+		}
+
 		configs := t.extractConfig(tableModel.GetContent())
-		err = t.createConfigFile(configs, t.name)
+		err = t.writeConfigFile(fp, configs)
 		if err != nil {
 			return err
 		}

@@ -241,9 +241,14 @@ func (dbc *DBController) save() error {
 		return fmt.Errorf("error create table metadata")
 	}
 
-	err = dbc.saveMetadata(filepath.Join(tbl.GetPath(), tbl.GetName()+".json"), metadados)
+	fp, err := services.FSbuildJSONFile(tbl.GetPath(), tbl.GetName(), ".json")
 	if err != nil {
-		return fmt.Errorf("error save metadata to controller")
+		return fmt.Errorf("error create metadata file")
+	}
+
+	err = dbc.writeMetadata(fp, metadados)
+	if err != nil {
+		return fmt.Errorf("error save metadata")
 	}
 
 	return nil
