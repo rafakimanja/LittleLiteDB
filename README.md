@@ -8,7 +8,7 @@ ele salva os dados em arquivos ```json```, portanto, não é recomendado para da
 Para instalar basta realizar:
 ```bash
 
-go get github.com/rafakimanja/LittleLiteDB
+go get github.com/rafakimanja/LittleLiteDB/orm
 ```
 
 ***
