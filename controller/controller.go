@@ -103,6 +103,7 @@ func (dbc *DBController) SelectById(id string, flag bool) (*types.Model, error) 
 }
 
 func (dbc *DBController) Select(limit int, offset int, flag bool)([]types.Model, error){
+	offset = offset-1 //because, inital position is 0 and don't 1
 	if dbc.tableRef.Path == "" {
 		err := dbc.load()
 		if err != nil {
